@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import { nextTick } from '@vue/runtime-core'
 export default {
   data () {
     return {
@@ -69,7 +68,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      // test animation
+      // test animation emit from container? or add status to state.sellorders
       this.triggerHighlight()
     })
   },
