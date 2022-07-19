@@ -17,6 +17,9 @@ const mutations = {
   },
   setLastPrice (state, wssResponseData) {
     state.lastPrice = wssResponseData
+  },
+  updateSellOrders (state, { updateArr, updateIndex }) {
+    state.sellOrders.splice(updateIndex, 0, updateArr).slice(0, 8)
   }
 }
 const actions = {
@@ -25,10 +28,8 @@ const actions = {
     if ('topic' in resdata && 'data' in resdata) {
       console.log('resdata', resdata)
       if (resdata.topic === 'tradeHistoryApi:BTCPFC' && length(resdata.data) > 0) {
-        // this.setLastPrice(resdata.data[0])
         context.commit('setLastPrice', resdata.data[0])
       } else if (resdata.topic === 'update:BTCPFC') {
-        // context.commit('setOrderBookUpdate', resdata.data)
         context.dispatch('checkSnapshotInit', resdata.data)
       }
     }
@@ -37,13 +38,13 @@ const actions = {
   checkSnapshotInit (context, data) {
     if ('type' in data) {
       if (data.type === 'snapshot') {
-        // update init display
         context.dispatch('initQuotesDisplay', { data: data, orderType: 'bids' })
         context.dispatch('initQuotesDisplay', { data: data, orderType: 'asks' })
 
         // save as orderBookUpdate for later compare
       } else if (data.type === 'delta') {
         // updateQuoteDisplay
+        context.dispatch('updateQuoteDisplay', 'asks')
       }
     }
   },
@@ -66,9 +67,33 @@ const actions = {
     }
   },
   // compare and update new quotes
-  updateQuoteDisplay (context) {
-    // if item > 
-  }
+  updateQuoteDisplay (context, { data, orderType }) {
+    // change size cell: if item = any element
+    // highlight: if item > min(orders)
+    const updatePrice = data[orderType].map(x => parseFloat(x[0]))
+    const updateSize = data[orderType].map(x => parseFloat(x[1]))
+    if (orderType === 'asks') {
+      let orderprice = context.state.sellOrders.map(x => parseFloat(x[0]))
+      let ordersize = context.state.sellOrders.map(x => parseFloat(x[1]))
+      if (updatePrice.length > 0) {
+        updatePrice.forEach((newprice, index) => {
+          for (i = 0; i < ordersize.length; i++) {
+            if (newprice === ordersize[i]) {
+              // commit('updateSellOrders', { updateArr: data[orderType][index]})
+            }
+          }
+        })
+      }
+
+
+      let minOrderprice = Math.min( ...orderprice )
+      console.log('min ', minOrderprice)
+    } else {
+      let min = context.state.buyOrders.map(x => parseFloat(x[0])).reduce((a, b) => { return Math.min(a, b) }, [])
+      console.log('buy update ',min)
+    }
+  },
+
 }
 
 // sum from end

@@ -1,5 +1,5 @@
 <template>
-  <table class="table-auto border-spacing-1 border-separate">
+  <table class="table-auto border-spacing-x-0 border-spacing-y-1 border-separate">
     <thead>
       <tr class="h-8 lg:pb-4 xl:pb-8 text-lg">
         <th class="text-left quote-container-pad">Price (USD)</th>
@@ -41,6 +41,7 @@
 <script>
 import Quote from './Quote.vue'
 import CurrentPrice from './CurrentPrice.vue'
+import { nextTick } from '@vue/runtime-core'
 export default {
   components: {
     Quote,
@@ -78,6 +79,11 @@ export default {
     return {
 
     }
+  },
+  mounted () {
+    this.$nextTick(() => {
+      // inner loading
+    })
   }
 }
 </script>

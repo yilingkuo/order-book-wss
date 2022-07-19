@@ -16,12 +16,14 @@ export default defineConfig({
           'orderbookBg': '#131B29',
           'buy': {
             'price': '#00b15d',
-            'totalpercent': 'rgba(16, 186, 104, 0.12)'
+            'totalpercent': 'rgba(16, 186, 104, 0.12)',
+            'highlight': 'rgba(0, 177, 93, 0.5)'
             // 'price': 'hsla(var(--hue, 217), 78%, 51%)', //class="bg-brand-primary"
           },
           'sell': {
             'price': '#FF5B5A',
-            'totalpercent': 'rgba(255, 90, 90, 0.12)'
+            'totalpercent': 'rgba(255, 90, 90, 0.12)',
+            'highlight': 'rgba(255, 91, 90, 0.5)'
             // 'price': 'hsla(var(--hue, 217), 78%, 51%)', //class="bg-brand-primary"
           },
         }
@@ -29,6 +31,7 @@ export default defineConfig({
       transformers: [transformerDirectives()],
       rules: [],
       shortcuts: {
+        'new-quote-animat': 'transition-colors duration-200 ease-in-out',
         // shortcuts to multiple utilities
         'btn': 'py-2 px-4 font-semibold rounded-lg shadow-md',
         'btn-green': 'text-white bg-green-500 hover:bg-green-700',

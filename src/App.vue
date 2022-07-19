@@ -35,10 +35,10 @@ export default {
       this.ws.close()
     }, "5000")
   },
-  destroy(){
+  destroy () {
     this.websocketclose(); //關閉websocket通道
   },
-  mounted() {
+  mounted () {
     // console.log(this.$store);
   }
 }

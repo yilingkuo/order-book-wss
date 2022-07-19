@@ -1,5 +1,5 @@
 <template>
-  <tr >
+  <tr class="new-quote-animat " :class="highlightStatus" >
     <td :class="[textStyle]" class="text-left quote-pad">{{ priceFormat(price) }}</td>
     <td class="text-right">{{ thousandMask(size) }}</td>
     <td class="w-1/2 text-right relative quote-pad">
@@ -10,7 +10,13 @@
 </template>
 
 <script>
+import { nextTick } from '@vue/runtime-core'
 export default {
+  data () {
+    return {
+      isHighlight: false
+    }
+  },
   props: ['orderType', 'price', 'size', 'total', 'denominator'],
   computed: {
     textStyle () {
@@ -44,9 +50,30 @@ export default {
         return 10
       }
     },
+    highlightStatus () {
+      if (this.isHighlight) {
+        switch (this.orderType) {
+          case 'buy':
+            return 'bg-buy-highlight'
+          case 'sell':
+            return 'bg-sell-highlight'
 
+          default:
+            return 'bg-sell-highlight'
+        }
+      } else {
+        return ''
+      }
+    }
 
   },
+  mounted () {
+    this.$nextTick(() => {
+      // test animation
+      this.triggerHighlight()
+    })
+  },
+  watch: {},
   methods: {
     thousandMask (v) {
       if (typeof v === 'string') {
@@ -59,6 +86,14 @@ export default {
     },
     priceFormat (v) {
       return parseFloat(v).toFixed(1).toLocaleString('en')
+    },
+    triggerHighlight () {
+      setTimeout(() => {
+        this.isHighlight = true
+      }, "100")
+      setTimeout(() => {
+        this.isHighlight = false
+      }, "1000")
     }
   }
 }
