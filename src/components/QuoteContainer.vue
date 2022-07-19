@@ -1,5 +1,5 @@
 <template>
-  <table class="table-auto border-spacing-0 border-collapse">
+  <table class="table-auto border-spacing-1 border-separate">
     <thead>
       <tr class="h-8 lg:pb-4 xl:pb-8 text-lg">
         <th class="text-left quote-container-pad">Price (USD)</th>
@@ -9,12 +9,30 @@
     </thead>
     <tbody>
       <!-- <div v-for=""></div> -->
-      <Quote v-for="(item, index) in sellOrders" :key="index" :orderType="'sell'" class="quote-container-pad"/>
+      <Quote 
+        v-for="(item, index) in sellOrders"
+        :key="index"
+        :orderType="'sell'"
+        :price="item[0]"
+        :size="item[1]"
+        :total="item[2]"
+        :denominator="sellOrdersDenominator"
+        class="quote-container-pad"
+      />
       <tr>
         <td colspan="3" class="text-xl quote-pad">1,354,545.2</td>
       </tr>
       <!-- <CurrentPrice  :orderType="'buy'"/> -->
-      <Quote v-for="(item, index) in buyOrders" :key="index" :orderType="'buy'" class="quote-container-pad"/>
+      <Quote
+        v-for="(item, index) in buyOrders"
+        :key="index"
+        :orderType="'buy'"
+        :price="item[0]"
+        :size="item[1]"
+        :total="item[2]"
+        :denominator="buyOrdersDenominator"
+        class="quote-container-pad"
+      />
 
     </tbody>
   </table>
@@ -28,29 +46,37 @@ export default {
     Quote,
     CurrentPrice
   },
+  computed: {
+    sellOrders: {
+      get: function () {
+        return this.$store.state.wssdata.sellOrders
+      }
+    },
+    buyOrders: {
+      get: function () {
+        return this.$store.state.wssdata.buyOrders
+      }
+    },
+    sellOrdersDenominator: function () {
+      if (this.sellOrders.length > 0) {
+        console.log(this.sellOrders[0][2])
+        return this.sellOrders[0][2]
+      } else {
+        return null
+      }
+    },
+    buyOrdersDenominator: function () {
+      if (this.buyOrders.length > 0) {
+        console.log(this.buyOrders[this.buyOrders.length-1][2])
+        return this.buyOrders[this.buyOrders.length-1][2]
+      } else {
+        return null
+      }
+    },
+  },
   data () {
     return {
-      buyOrders: [
-        { value: 'b' },
-        { value: 'b' },
-        { value: 'b' },
-        { value: 'b' },
-        { value: 'b' },
-        { value: 'b' },
-        { value: 'b' },
-        { value: 'b' }
-      ],
-      sellOrders: [
-        { value: 's' },
-        { value: 's' },
-        { value: 's' },
-        { value: 's' },
-        { value: 's' },
-        { value: 's' },
-        { value: 's' },
-        { value: 's' },
-        { value: 's' }
-      ]
+
     }
   }
 }

@@ -18,7 +18,7 @@ export const mixinWebsocket = {
         }
       }
     },
-    methods:{
+    methods: {
       //初始websocket
       initWebsocket () {
         let wsURL = 'wss://ws.btse.com/ws/oss/futures'

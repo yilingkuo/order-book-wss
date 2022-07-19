@@ -86,8 +86,8 @@ th {
   padding: 16px;
 } */
 
-tr:hover {
-  background-color: #1E3059;
+tbody tr:hover {
+  background-color: rgb(30, 48, 89, 0.5);
 }
 
 @media (prefers-color-scheme: light) {

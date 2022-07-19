@@ -1,20 +1,19 @@
 const state = () => ({
   orderBookUpdate: [],
-  orderBookSell: [],
-  orderBookBuy: [],
+  buyOrders: [],  //bids
+  sellOrders: [], //asks
   lastPrice: null,
-  sign2Reconnect: false
 })
 const mutations = {
   setOrderBookUpdate (state, wssResponseData) {
     console.log(wssResponseData)
     state.orderBookUpdate = wssResponseData
   },
-  setOrderBookSell (state, wssResponseData) {
-    state.orderBookSell = wssResponseData
+  setSellOrders (state, wssResponseData) {
+    state.sellOrders = wssResponseData
   },
-  setOrderBookBuy (state, wssResponseData) {
-    state.orderBookBuy = wssResponseData
+  setBuyOrders (state, wssResponseData) {
+    state.buyOrders = wssResponseData
   },
   setLastPrice (state, wssResponseData) {
     state.lastPrice = wssResponseData
@@ -57,12 +56,13 @@ const actions = {
       if (orderType === 'asks') {
         // sum from reverse direction
         totalSize = copyNestArrNoRef.map((x, n) => copyNestArrNoRef.map(x => parseInt(x[1])).slice((-n-1)).reduce((acc, val) => acc + val)).reverse()
+        copyNestArrNoRef.map((x, n) => x.push(totalSize[n]))
+        context.commit('setSellOrders', copyNestArrNoRef)
       } else {
         totalSize = copyNestArrNoRef.map((x, n) => copyNestArrNoRef.map(x => parseInt(x[1])).slice(0, n+1).reduce((acc, val) => acc + val))
+        copyNestArrNoRef.map((x, n) => x.push(totalSize[n]))
+        context.commit('setBuyOrders', copyNestArrNoRef)
       }
-      copyNestArrNoRef.map((x, n) => x.push(totalSize[n]))
-      console.log(copyNestArrNoRef)
-      // commit to state
     }
   },
   // compare and update new quotes

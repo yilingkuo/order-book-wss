@@ -15,11 +15,13 @@ export default defineConfig({
         colors: {
           'orderbookBg': '#131B29',
           'buy': {
-            'price': '#00b15d'
+            'price': '#00b15d',
+            'totalpercent': 'rgba(16, 186, 104, 0.12)'
             // 'price': 'hsla(var(--hue, 217), 78%, 51%)', //class="bg-brand-primary"
           },
           'sell': {
-            'price': '#FF5B5A'
+            'price': '#FF5B5A',
+            'totalpercent': 'rgba(255, 90, 90, 0.12)'
             // 'price': 'hsla(var(--hue, 217), 78%, 51%)', //class="bg-brand-primary"
           },
         }
