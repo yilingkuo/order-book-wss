@@ -53,6 +53,7 @@ export const mixinWebsocket = {
       },
       websocketclose () {
         console.log('ws 關閉連線')
+        this.ws.close()
         // this.reconnect()
       },
       reconnect () {
@@ -66,7 +67,7 @@ export const mixinWebsocket = {
         that.timeoutNum = setTimeout((() => {
           that.initWebsocket()
           that.lockReconnect = false
-        }), 5000)
+        }), 10000)
       },
       checkSign2Reconnect (newOrderBook) {
         if ('type' in newOrderBook && 'prevSeqNum' in newOrderBook && 'seqNum' in this.$store.state.wssdata.orderBookUpdate) {

@@ -43,7 +43,6 @@ export default {
     totalPercentage () {
       if (this.denominator) {
         const result = parseFloat(this.total * 100/this.denominator).toFixed(0)
-        console.log(result)
         return result
       } else {
         return 10
