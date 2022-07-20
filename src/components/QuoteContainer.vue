@@ -12,6 +12,7 @@
       <Quote 
         v-for="(item, index) in sellOrders"
         :key="index"
+        :nodeIndex="index"
         :orderType="'sell'"
         :price="item[0]"
         :size="item[1]"
@@ -26,6 +27,7 @@
       <Quote
         v-for="(item, index) in buyOrders"
         :key="index"
+        :nodeIndex="index"
         :orderType="'buy'"
         :price="item[0]"
         :size="item[1]"

@@ -1,11 +1,22 @@
 const state = () => ({
   orderBookUpdate: [],
-  buyOrders: [],  //bids
-  sellOrders: [], //asks
   lastPrice: null,
+
+  sellOrders: [], //asks
+  buyOrders: [],  //bids
+  sellHighlighIndex: null,
   buyHighlighIndex: null,
-  sellHighlighIndex: null
+  sellQuoteSizeChangeIndex: null,
+  buyQuoteSizeChangeIndex: null,
 })
+const getters = {
+  sellOrdersDisplay (state, getters) {
+    return state.sellOrders.slice(0,8)
+  },
+  buyOrdersDisplay (state, getters) {
+    return state.buyOrders.slice(0,8)
+  }
+}
 const mutations = {
   setOrderBookUpdate (state, wssResponseData) {
     state.orderBookUpdate = wssResponseData
@@ -19,15 +30,45 @@ const mutations = {
   setLastPrice (state, wssResponseData) {
     state.lastPrice = wssResponseData
   },
+  setHighlighIndex (state, { updateIndex, orderType }) {
+    if (updateIndex !== -1) {
+      if (orderType === 'asks') {
+        state.sellHighlighIndex = updateIndex
+      } else {
+        state.buyHighlighIndex = updateIndex
+      }
+    }
+  },
+  setQuoteSizeChangeIndex (state, { updateIndex, orderType }) {
+    if (updateIndex !== -1) {
+      if (orderType === 'asks') {
+        state.sellQuoteSizeChangeIndex = updateIndex
+      } else {
+        state.buyQuoteSizeChangeIndex = updateIndex
+      }
+    }
+  },
   updateOrdersByIndex (state, { updateArr, updateIndex, orderType }) {
     if (updateIndex !== -1) {
       if (orderType === 'asks') {
+        state.sellHighlighIndex = updateIndex
         state.sellOrders[updateIndex] = updateArr
       } else {
+        state.buyHighlighIndex = updateIndex
         state.buyOrders[updateIndex] = updateArr
       }
     }
-    // state.sellOrders = state.sellOrders.splice(updateIndex, 0, updateArr).slice(0, 8)
+  },
+  removeOrdersByIndex (state, { updateIndex, orderType }) {
+    if (updateIndex !== -1) {
+      if (orderType === 'asks') {
+        state.sellHighlighIndex = updateIndex
+        state.sellOrders.splice(updateIndex, 1)
+      } else {
+        state.buyHighlighIndex = updateIndex
+        state.buyOrders.splice(updateIndex, 1)
+      }
+    }
   },
   updateOrdersLast (state, { updateArr, orderType }) {
     if (orderType === 'asks') {
@@ -57,7 +98,6 @@ const actions = {
         context.dispatch('initQuotesDisplay', { data: data, orderType: 'bids' })
         context.dispatch('initQuotesDisplay', { data: data, orderType: 'asks' })
 
-        // save as orderBookUpdate for later compare
       } else if (data.type === 'delta') {
         // updateQuoteDisplay
         console.log('update delta', data)
@@ -90,12 +130,24 @@ const actions = {
     if (orderType === 'asks') {
       const copySellOrders = context.state.sellOrders.map(arr => (arr.slice(0,2))).slice(0, 8)
       totalSize = copySellOrders.map((x, n) => copySellOrders.map(x => parseInt(x[1])).slice((-n-1)).reduce((acc, val) => acc + val)).reverse()
-      copySellOrders.map((x, n) => x.push(totalSize[n]))
+      copySellOrders.map((x, n) => {
+        if (totalSize[n]) {
+          return x.push(totalSize[n])
+        } else {
+          return x
+        }
+      })
       context.commit('setSellOrders', copySellOrders)
     } else {
       const copyBuyOrders = context.state.buyOrders.map(arr => (arr.slice(0,2))).slice(0, 8)
       totalSize = copyBuyOrders.map((x, n) => copyBuyOrders.map(x => parseInt(x[1])).slice(0, n+1).reduce((acc, val) => acc + val))
-      copyBuyOrders.map((x, n) => x.push(totalSize[n]))
+      copyBuyOrders.map((x, n) => {
+        if (totalSize[n]) {
+          return x.push(totalSize[n])
+        } else {
+          return x
+        }
+      })
       context.commit('setBuyOrders', copyBuyOrders)
     }
   },
@@ -109,58 +161,15 @@ const actions = {
     if (orderType === 'asks') {
       // map array for dev data checking
       let orderprice = context.state.sellOrders.map(x => parseFloat(x[0]))
-      console.log('order price arr: ', orderprice)
       let ordersize = context.state.sellOrders.map(x => parseFloat(x[1]))
       context.dispatch('updateLogic', {
-        orderType: orderType, updatePrice: updatePrice, updateSize: updateSize, orderprice: updateSize, ordersize: ordersize
+        orderType: orderType, updatePrice: updatePrice, updateSize: updateSize, orderprice: orderprice, ordersize: ordersize
       })
-      // if (updatePrice.length > 0) {
-      //   let minOrderprice = Math.min( ...orderprice )
-      //   updatePrice.forEach((newprice, index) => {
-      //     for (let i = 0; i < orderprice.length; i++) {
-      //       if (newprice > minOrderprice) {
-      //         console.log('highlight', newprice, orderprice[i], minOrderprice)
-      //         if (newprice === orderprice[i]) {
-      //           // update size by index, recalculate total
-      //           console.log('highlight replace element & update size', data[orderType][index])
-      //           if (updateSize[index] > 0) {
-      //             let updateArr = [newprice, ordersize[i] + updateSize[index]]
-      //             context.commit('updateOrdersByIndex', {
-      //               // updateArr: data[orderType][index],
-      //               updateArr: updateArr,
-      //               updateIndex: i,
-      //               orderType: 'asks'
-      //             })
-      //             context.dispatch('calculateSizeTotal', 'asks')
-      //           }
-      //           // context.dispatch('calculateSizeTotal', 'asks')
-      //         } else {
-      //           // update array
-      //           // orderprice.push(newprice)
-      //           // orderprice.sort((a,b) => b - a).slice(0, 8)
-      //           // console.log('highlight update array', test, orderprice.sort((a,b) => b - a).slice(0, 8))
-      //           if (updateSize[index] > 0) {
-      //             let updateArr = [newprice, ordersize[i] + updateSize[index]]
-      //             context.commit('updateOrdersLast', {
-      //               // updateArr: data[orderType][index],
-      //               updateArr: updateArr,
-      //               orderType: 'asks'
-      //             })
-      //             context.dispatch('calculateSizeTotal', 'asks')
-      //           }
-      //         }
-
-      //         break
-      //       }
-      //     }
-      //   })
-      // }
     } else {
       let orderprice = context.state.buyOrders.map(x => parseFloat(x[0]))
-      console.log('order price arr: ', orderprice)
       let ordersize = context.state.buyOrders.map(x => parseFloat(x[1]))
       context.dispatch('updateLogic', {
-        orderType: orderType, updatePrice: updatePrice, updateSize: updateSize, orderprice: updateSize, ordersize: ordersize
+        orderType: orderType, updatePrice: updatePrice, updateSize: updateSize, orderprice: orderprice, ordersize: ordersize
       })
     }
   },
@@ -168,40 +177,56 @@ const actions = {
     if (updatePrice.length > 0) {
       let minOrderprice = Math.min( ...orderprice )
       updatePrice.forEach((newprice, index) => {
-        for (let i = 0; i < orderprice.length; i++) {
-          if (newprice > minOrderprice) {
-            console.log('highlight', newprice, orderprice[i], minOrderprice)
+        let i
+        for (i = 0; i < orderprice.length; i++) {
+          if (newprice >= minOrderprice) {
+            // trigger highlight index
+            console.log('updateIndex', i, orderprice.length)
+
             if (newprice === orderprice[i]) {
               // update size by index, recalculate total
-              console.log('highlight replace element & update size', data[orderType][index])
-              if (updateSize[index] > 0) {
+              if (updateSize[index] === 0) {
+                // remove from array
+                context.commit('removeOrdersByIndex', {
+                  updateIndex: i,
+                  orderType: orderType
+                })
+                context.dispatch('calculateSizeTotal', orderType)
+              } else if (updateSize[index] > 0) {
+                // trigger size change index
+                context.commit('setQuoteSizeChangeIndex', {
+                  updateIndex: i,
+                  orderType: orderType
+                })
                 let updateArr = [newprice, ordersize[i] + updateSize[index]]
                 context.commit('updateOrdersByIndex', {
-                  // updateArr: data[orderType][index],
                   updateArr: updateArr,
                   updateIndex: i,
                   orderType: orderType
                 })
                 context.dispatch('calculateSizeTotal', orderType)
               }
-              // context.dispatch('calculateSizeTotal', orderType)
             } else {
               // update array
-              // orderprice.push(newprice)
-              // orderprice.sort((a,b) => b - a).slice(0, 8)
-              // console.log('highlight update array', test, orderprice.sort((a,b) => b - a).slice(0, 8))
               if (updateSize[index] > 0) {
+                // trigger size change index
+                context.commit('setQuoteSizeChangeIndex', {
+                  updateIndex: i,
+                  orderType: orderType
+                })
                 let updateArr = [newprice, ordersize[i] + updateSize[index]]
                 context.commit('updateOrdersLast', {
-                  // updateArr: data[orderType][index],
                   updateArr: updateArr,
                   orderType: orderType
                 })
                 context.dispatch('calculateSizeTotal', orderType)
+                context.commit('setHighlighIndex', {
+                  updateIndex: i,
+                  orderType: orderType
+                })
               }
             }
 
-            break
           }
         }
       })
@@ -216,7 +241,7 @@ const actions = {
 export default {
   namespaced: true,
   state,
-  // getters,
+  getters,
   actions,
   mutations
 }
