@@ -80,6 +80,14 @@ export default {
 
     }
   },
+  watch: {
+    buyHighlighIndex(newArray, oldArray) {
+      // do stuff
+    },
+    sellHighlighIndex(newArray, oldArray) {
+      // do stuff
+    },
+  },
   mounted () {
     this.$nextTick(() => {
       // inner loading
