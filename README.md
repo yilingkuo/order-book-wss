@@ -1,6 +1,7 @@
 # Order Book for futures market with Websocket Client(Vue 3 + Vite)
 
-This template should help get you started developing with Vue 3 in Vite
+* Implement UNOcss to design css pattern
+* Try out connecting websocket client
 
 ## Demo video during development
 ### Before adding highlight
